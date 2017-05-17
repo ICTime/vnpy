@@ -1,3 +1,1 @@
-/home/vnpy/桌面/new/vn.ib/build/CMakeFiles/edit_cache.dir
-/home/vnpy/桌面/new/vn.ib/build/CMakeFiles/rebuild_cache.dir
-/home/vnpy/桌面/new/vn.ib/build/CMakeFiles/vnib.dir
+/home/ictime/vnpy/vnpy/api/ib/build/CMakeFiles/vnib.dir
