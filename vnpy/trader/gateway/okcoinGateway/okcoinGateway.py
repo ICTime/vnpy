@@ -700,9 +700,13 @@ class Api(vnokcoin.OkCoinApi):
             self.cancelDict[localNo] = req
     
 #----------------------------------------------------------------------
+#----------------------------------------------------------------------
 def generateDateTime(s):
     """生成时间"""
     dt = datetime.fromtimestamp(float(s)/1e3)
     time = dt.strftime("%H:%M:%S.%f")
     date = dt.strftime("%Y%m%d")
     return date, time
+
+
+
