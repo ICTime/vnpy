@@ -1,1 +1,0 @@
-/home/ictime/vnpy/vnpy/api/ib/ibapi/linux/build/CMakeFiles/twsapi.dir

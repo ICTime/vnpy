@@ -1,1 +1,0 @@
-/home/ictime/vnpy/vnpy/api/ib/build/CMakeFiles/vnib.dir

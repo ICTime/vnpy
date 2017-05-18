@@ -18,7 +18,9 @@ class VtGateway(object):
         """Constructor"""
         self.eventEngine = eventEngine
         self.gatewayName = gatewayName
-        
+        self.debugMode   = False
+        self.debugMode   = True
+
     #----------------------------------------------------------------------
     def onTick(self, tick):
         """市场行情推送"""
@@ -26,6 +28,8 @@ class VtGateway(object):
         event1 = Event(type_=EVENT_TICK)
         event1.dict_['data'] = tick
         self.eventEngine.put(event1)
+        if self.debugMode:
+            print tick.vtSymbol,tick.time,tick.lastPrice,tick.bidPrice1,"(",tick.bidVolume1,")",tick.askPrice1,"(",tick.askVolume1,")"
         
         # 特定合约代码的事件
         event2 = Event(type_=EVENT_TICK+tick.vtSymbol)
