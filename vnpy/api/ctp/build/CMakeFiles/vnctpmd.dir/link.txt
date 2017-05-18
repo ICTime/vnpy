@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC  -fPIC -std=c++11 -O3 -DNDEBUG   -shared -Wl,-soname,vnctpmd.so -o lib/vnctpmd.so CMakeFiles/vnctpmd.dir/vnctpmd/vnctpmd/vnctpmd.cpp.o  -L/usr/local/lib/ctpapi/x64_linux -lboost_python -lboost_thread -lboost_date_time -lboost_system -lboost_chrono -lpthread -lpython2.7 -lthostmduserapi -Wl,-rpath,/usr/local/lib/ctpapi/x64_linux 

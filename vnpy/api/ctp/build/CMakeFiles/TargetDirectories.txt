@@ -1,0 +1,2 @@
+/home/ictime/vnpy/vnpy/api/ctp/build/CMakeFiles/vnctpmd.dir
+/home/ictime/vnpy/vnpy/api/ctp/build/CMakeFiles/vnctptd.dir
