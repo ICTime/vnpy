@@ -40,6 +40,7 @@ PRODUCT_COMBINATION = u'combination'
 PRODUCT_FOREX = u'forex'
 PRODUCT_UNKNOWN = u'unknown'
 PRODUCT_SPOT = u'spot'
+PRODUCT_CFD = u'cfd'
 PRODUCT_DEFER = u'defer'
 PRODUCT_NONE = 'none'
 

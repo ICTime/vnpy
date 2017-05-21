@@ -260,6 +260,9 @@ class VtContractData(VtBaseData):
         self.underlyingSymbol = EMPTY_STRING    # 标的物合约代码
         self.optionType = EMPTY_UNICODE         # 期权类型
 
+        # IB currency  
+        self.currency= EMPTY_STRING             # 货币单位
+
 
 ########################################################################
 class VtSubscribeReq(object):

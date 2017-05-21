@@ -14,8 +14,8 @@ from vnpy.trader.vtGateway import *
 from vnpy.trader.language import text
 
 from vnpy.trader.gateway import GATEWAY_DICT
-from vnpy.trader.ctaStrategy.ctaEngine import CtaEngine
 from vnpy.trader.dataRecorder.drEngine import DrEngine
+from vnpy.trader.ctaStrategy.ctaEngine import CtaEngine
 from vnpy.trader.riskManager.rmEngine import RmEngine
 
 
@@ -85,7 +85,7 @@ class MainEngine(object):
             gateway.connect()
             
             # 接口连接后自动执行数据库连接的任务
-            self.dbConnect()        
+            # self.dbConnect()        
    
     #----------------------------------------------------------------------
     def subscribe(self, subscribeReq, gatewayName):
@@ -281,6 +281,7 @@ class DataEngine(object):
     def updateContract(self, event):
         """更新合约数据"""
         contract = event.dict_['data']
+        # print '--------updateContract',contract.__dict__
         self.contractDict[contract.vtSymbol] = contract
         self.contractDict[contract.symbol] = contract       # 使用常规代码（不包括交易所）可能导致重复
         

@@ -250,6 +250,7 @@ class CtaEngine(object):
         tick = event.dict_['data']
         # 收到tick行情后，先处理本地停止单（检查是否要立即发出）
         self.processStopOrder(tick)
+        print "---------- ctaStrategy.ctaEngine.procecssTickEvent",tick.__dict__
         
         # 推送tick到对应的策略实例进行处理
         if tick.vtSymbol in self.tickStrategyDict:
@@ -261,7 +262,33 @@ class CtaEngine(object):
             l = self.tickStrategyDict[tick.vtSymbol]
             for strategy in l:
                 self.callStrategyFunc(strategy, strategy.onTick, tick)
+                print "---------- ctaStrategy.ctaEngine.procecssTickEvent",tick.vtSymbol,strategy
     
+    #----------------------------------------------------------------------
+    def processBarEvent(self, event):
+        """处理行情推送"""
+        bar= event.dict_['data']
+        # 修正BAR中的exchange字段，原因是CTP onRtnDepthMarketData返回值为空
+        # onRspQryInstrument return the correct contract info after login
+        # contract = self.mainEngine.getContract(bar.vtSymbol)
+        # print contract.__dict__
+        # bar.exchange = contract.exchange
+
+        # 推送bar到对应的策略实例进行处理
+        if bar.vtSymbol in self.tickStrategyDict:
+            # 将vtTickData数据转化为ctaTickData
+            ctaBar = CtaBarData()
+            d = ctaBar.__dict__
+            for key in d.keys():
+                d[key] = bar.__getattribute__(key)
+
+            # 逐个推送到真实策略实例中, DataRecorder 只产生KBar
+            # print self.tickStrategyDict[bar.vtSymbol]
+            for strategy in self.tickStrategyDict[bar.vtSymbol]:
+                print "---------- ctaAlgo.ctaEngine.proecssBarEvent",bar.vtSymbol,strategy.className, strategy.name
+                strategy.onBar(ctaBar)
+
+
     #----------------------------------------------------------------------
     def processOrderEvent(self, event):
         """处理委托推送"""
@@ -320,6 +347,7 @@ class CtaEngine(object):
     def registerEvent(self):
         """注册事件监听"""
         self.eventEngine.register(EVENT_TICK, self.processTickEvent)
+        # self.eventEngine.register(EVENT_BAR, self.processBarEvent)
         self.eventEngine.register(EVENT_ORDER, self.processOrderEvent)
         self.eventEngine.register(EVENT_TRADE, self.processTradeEvent)
         self.eventEngine.register(EVENT_POSITION, self.processPositionEvent)
@@ -364,7 +392,8 @@ class CtaEngine(object):
         """快速发出CTA模块日志事件"""
         log = VtLogData()
         log.logContent = content
-        event = Event(type_=EVENT_CTA_LOG)
+        # event = Event(type_=EVENT_CTA_LOG)
+        event = Event(type_=EVENT_LOG)
         event.dict_['data'] = log
         self.eventEngine.put(event)   
     
@@ -391,6 +420,7 @@ class CtaEngine(object):
             # 创建策略实例
             strategy = strategyClass(self, setting)  
             self.strategyDict[name] = strategy
+            self.writeCtaLog(u'策略实例：%s' %name)
             
             # 保存Tick映射关系
             if strategy.vtSymbol in self.tickStrategyDict:
@@ -402,18 +432,21 @@ class CtaEngine(object):
             
             # 订阅合约
             contract = self.mainEngine.getContract(strategy.vtSymbol)
-            if contract:
-                req = VtSubscribeReq()
-                req.symbol = contract.symbol
-                req.exchange = contract.exchange
-                
-                # 对于IB接口订阅行情时所需的货币和产品类型，从策略属性中获取
-                req.currency = strategy.currency
-                req.productClass = strategy.productClass
-                
-                self.mainEngine.subscribe(req, contract.gatewayName)
-            else:
-                self.writeCtaLog(u'%s的交易合约%s无法找到' %(name, strategy.vtSymbol))
+            print '------- ctaEngine.loadStrategy:', contract.__dict__ 
+
+            # Subscribe is done in dataRecoder, skip here 
+            # if contract:
+            #     req = VtSubscribeReq()
+            #     req.symbol = contract.symbol
+            #     req.exchange = contract.exchange
+            #     
+            #     # 对于IB接口订阅行情时所需的货币和产品类型，从策略属性中获取
+            #     req.currency = strategy.currency
+            #     req.productClass = strategy.productClass
+            #     
+            #     self.mainEngine.subscribe(req, contract.gatewayName)
+            # else:
+            #     self.writeCtaLog(u'%s的交易合约%s无法找到' %(name, strategy.vtSymbol))
 
     #----------------------------------------------------------------------
     def initStrategy(self, name):
@@ -481,6 +514,7 @@ class CtaEngine(object):
     #----------------------------------------------------------------------
     def loadSetting(self):
         """读取策略配置"""
+        print '------- ctaEngine.loadSetting:', self.settingFileName  
         with open(self.settingFileName) as f:
             l = json.load(f)
             

@@ -119,6 +119,8 @@ class AtrRsiStrategy(CtaTemplate):
     def onTick(self, tick):
         """收到行情TICK推送（必须由用户继承实现）"""
         # 计算K线
+        print "---------- ctaStrategy.strategy.strategyAtrRsi.onTick:", tick.symbol, tick.time, tick.lastPrice
+
         tickMinute = tick.datetime.minute
 
         if tickMinute != self.barMinute:    

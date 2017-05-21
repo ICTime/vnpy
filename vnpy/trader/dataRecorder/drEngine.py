@@ -51,8 +51,8 @@ class DrEngine(object):
         
         # 负责执行数据库插入的单独线程相关
         self.active = False                     # 工作状态
-        self.queue = Queue()                    # 队列
-        self.thread = Thread(target=self.run)   # 线程
+        # self.queue = Queue()                    # 队列
+        # self.thread = Thread(target=self.run)   # 线程
         
         # 载入设置，订阅行情
         self.loadSetting()
@@ -60,6 +60,8 @@ class DrEngine(object):
     #----------------------------------------------------------------------
     def loadSetting(self):
         """载入设置"""
+        print self.settingFileName
+
         with open(self.settingFileName) as f:
             drSetting = json.load(f)
             
@@ -79,14 +81,15 @@ class DrEngine(object):
                     req.symbol = setting[0]
                     
                     # 针对LTS和IB接口，订阅行情需要交易所代码
-                    if len(setting)>=3:
-                        req.exchange = setting[2]
-                        vtSymbol = '.'.join([symbol, req.exchange])
-                    
                     # 针对IB接口，订阅行情需要货币和产品类型
-                    if len(setting)>=5:
-                        req.currency = setting[3]
-                        req.productClass = setting[4]
+                    if len(setting)==5:
+                        symbollist= symbol.split('-')
+                        req.symbol = symbollist[0] 
+                        req.expiry = symbollist[1] 
+                        req.exchange     = setting[2]
+                        req.currency     = setting[3]
+                        req.productClass = setting[4]                    
+                        vtSymbol = '.'.join([symbol, req.exchange])
                     
                     self.mainEngine.subscribe(req, setting[1])
                     
@@ -103,71 +106,50 @@ class DrEngine(object):
                     req = VtSubscribeReq()
                     req.symbol = symbol                    
 
-                    if len(setting)>=3:
-                        req.exchange = setting[2]
-                        vtSymbol = '.'.join([symbol, req.exchange])
-
-                    if len(setting)>=5:
-                        req.currency = setting[3]
+                    # FOR IB:  vtSymbol is symbol-expiry.exchange 
+                    if len(setting)==5:
+                        symbollist= symbol.split('-')
+                        req.symbol = symbollist[0] 
+                        req.expiry = symbollist[1] 
+                        req.exchange     = setting[2]
+                        req.currency     = setting[3]
                         req.productClass = setting[4]                    
+                        vtSymbol = '.'.join([symbol, req.exchange])
                     
+                    print '---------- DrEngine.loadSetting.bar ', vtSymbol, req.__dict__
                     self.mainEngine.subscribe(req, setting[1])  
                     
                     bar = VtBarData() 
                     self.barDict[vtSymbol] = bar
-                    
-            if 'active' in drSetting:
-                d = drSetting['active']
-                
-                # 注意这里的vtSymbol对于IB和LTS接口，应该后缀.交易所
-                for activeSymbol, vtSymbol in d.items():
-                    self.activeSymbolDict[vtSymbol] = activeSymbol
-            
+
             # 启动数据插入线程
-            self.start()
+            # self.start()
             
             # 注册事件监听
             self.registerEvent()    
 
+            print '---------- DrEngine.loadSetting', self.barDict
     #----------------------------------------------------------------------
     def procecssTickEvent(self, event):
         """处理行情推送"""
         tick = event.dict_['data']
         vtSymbol = tick.vtSymbol
+        # print '----- DrEngine.procecssTickEvent', vtSymbol,tick.__dict__ 
 
         # 转化Tick格式
         if not tick.datetime:
             tick.datetime = datetime.strptime(' '.join([tick.date, tick.time]), '%Y%m%d %H:%M:%S.%f')            
-        
-        # 更新Tick数据
-        if vtSymbol in self.tickDict:
-            self.insertData(TICK_DB_NAME, vtSymbol, tick)
-            
-            if vtSymbol in self.activeSymbolDict:
-                activeSymbol = self.activeSymbolDict[vtSymbol]
-                self.insertData(TICK_DB_NAME, activeSymbol, tick)
-            
-            # 发出日志
-            self.writeDrLog(text.TICK_LOGGING_MESSAGE.format(symbol=tick.vtSymbol,
-                                                             time=tick.time, 
-                                                             last=tick.lastPrice, 
-                                                             bid=tick.bidPrice1, 
-                                                             ask=tick.askPrice1))
-            
         # 更新分钟线数据
         if vtSymbol in self.barDict:
             bar = self.barDict[vtSymbol]
-            
             # 如果第一个TICK或者新的一分钟
-            if not bar.datetime or bar.datetime.minute != tick.datetime.minute:    
+            # if not bar.datetime or bar.datetime.minute != tick.datetime.minute:
+            # using 5 seconds bars as min bars  
+            if not bar.datetime or bar.datetime.minute != tick.datetime.minute or (tick.datetime.second % 5 ==0 and str(tick.time).endswith('.0')):    
                 if bar.vtSymbol:
                     newBar = copy.copy(bar)
-                    self.insertData(MINUTE_DB_NAME, vtSymbol, newBar)
-                    
-                    if vtSymbol in self.activeSymbolDict:
-                        activeSymbol = self.activeSymbolDict[vtSymbol]
-                        self.insertData(MINUTE_DB_NAME, activeSymbol, newBar)                    
-                    
+                    self.putBarEvent(newBar)
+
                     self.writeDrLog(text.BAR_LOGGING_MESSAGE.format(symbol=bar.vtSymbol, 
                                                                     time=bar.time, 
                                                                     open=bar.open, 
@@ -233,7 +215,15 @@ class DrEngine(object):
         """快速发出日志事件"""
         log = VtLogData()
         log.logContent = content
-        event = Event(type_=EVENT_DATARECORDER_LOG)
+        event = Event(type_=EVENT_LOG)
         event.dict_['data'] = log
         self.eventEngine.put(event)   
+    #----------------------------------------------------------------------
+    def putBarEvent(self, bar) :
+        """快速发出BAR事件"""
+        event = Event(type_=EVENT_BAR)
+        event.dict_['data'] = bar
+        self.eventEngine.put(event)
+        # print "----- putBarEvent ", bar.__dict__
+
     
