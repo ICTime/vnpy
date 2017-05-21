@@ -35,3 +35,6 @@ for root, subdirs, files in os.walk(path):
                 print '-' * 20
                 print ('Failed to import strategy file %s:' %moduleName)
                 traceback.print_exc()
+
+
+print '---------', STRATEGY_CLASS 

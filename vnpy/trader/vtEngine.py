@@ -1,8 +1,10 @@
 # encoding: UTF-8
 
 import shelve
+import os 
 from collections import OrderedDict
 from datetime import datetime
+import numpy as np 
 
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
@@ -160,24 +162,7 @@ class MainEngine(object):
     
     #----------------------------------------------------------------------
     def dbConnect(self):
-        """连接MongoDB数据库"""
-        if not self.dbClient:
-            # 读取MongoDB的设置
-            try:
-                # 设置MongoDB操作的超时时间为0.5秒
-                self.dbClient = MongoClient(globalSetting['mongoHost'], globalSetting['mongoPort'], connectTimeoutMS=500)
-                
-                # 调用server_info查询服务器状态，防止服务器异常并未连接成功
-                self.dbClient.server_info()
-
-                self.writeLog(text.DATABASE_CONNECTING_COMPLETED)
-                
-                # 如果启动日志记录，则注册日志事件监听函数
-                if globalSetting['mongoLogging']:
-                    self.eventEngine.register(EVENT_LOG, self.dbLogging)
-                    
-            except ConnectionFailure:
-                self.writeLog(text.DATABASE_CONNECTING_FAILED)
+        pass 
     
     #----------------------------------------------------------------------
     def dbInsert(self, dbName, collectionName, d):
@@ -191,19 +176,17 @@ class MainEngine(object):
     
     #----------------------------------------------------------------------
     def dbQuery(self, dbName, collectionName, d):
-        """从MongoDB中读取数据，d是查询要求，返回的是数据库查询的指针"""
-        if self.dbClient:
-            db = self.dbClient[dbName]
-            collection = db[collectionName]
-            cursor = collection.find(d)
-            if cursor:
-                return list(cursor)
-            else:
-                return []
-        else:
-            self.writeLog(text.DATA_QUERY_FAILED)   
-            return []
-        
+        pass 
+
+    #----------------------------------------------------------------------
+    def getDayBars(self, vtSymbol, counts):
+        print '-----VtEngine.getDayBars', vtSymbol,counts
+        return self.dataEngine.getDayBars(vtSymbol, counts)
+
+    #----------------------------------------------------------------------
+    def getMinuteBars(self, vtSymbol, counts):
+        return self.dataEngine.getMinuteBars(vtSymbol, counts)
+
     #----------------------------------------------------------------------
     def dbUpdate(self, dbName, collectionName, d, flt, upsert=False):
         """向MongoDB中更新数据，d是具体数据，flt是过滤条件，upsert代表若无是否要插入"""
@@ -267,6 +250,10 @@ class DataEngine(object):
         
         # 保存委托数据的字典
         self.orderDict = {}
+
+        #  
+        self.dayBarsDict = {}
+        self.minuteBarsDict = {}
         
         # 保存活动委托数据的字典（即可撤销）
         self.workingOrderDict = {}
@@ -292,6 +279,38 @@ class DataEngine(object):
             return self.contractDict[vtSymbol]
         except KeyError:
             return None
+    
+    
+    #----------------------------------------------------------------------
+    def convertDate(self,text):
+        return datetime.strptime(text, '%Y-%m-%d')
+    
+    #----------------------------------------------------------------------
+    def convertDatetime(self,text):
+        return datetime.strptime(text, '%Y-%m-%d %H:%M:%S')
+
+    #----------------------------------------------------------------------
+    def loadDayBars(self, vtSymbol):
+        columns = ('Timestamp', 'open','high','low','close','atr')
+        filename = os.path.join('database',vtSymbol+'.day.csv') 
+        bars = np.genfromtxt(filename,delimiter=",", skip_header=1, names=columns, dtype=None, converters={'Timestamp':self.convertDate})
+        self.dayBarsDict[vtSymbol] = bars
+
+    #----------------------------------------------------------------------
+    def getDayBars(self, vtSymbol,counts):
+        print '-----DataEngine.getDayBars',  vtSymbol,counts
+        if not vtSymbol in self.dayBarsDict:
+            self.loadDayBars(vtSymbol) 
+
+        return self.dayBarsDict[vtSymbol][-counts:] 
+
+    #----------------------------------------------------------------------
+    def getMinuteBars(self, vtSymbol,counts):
+        try:
+            return self.minuteBarsDict[vtSymbol]
+        except KeyError:
+            return None
+        
         
     #----------------------------------------------------------------------
     def getAllContracts(self):

@@ -18,7 +18,7 @@ class CtaTemplate(object):
     
     # MongoDB数据库的名称，K线数据库默认为1分钟
     tickDbName = TICK_DB_NAME
-    barDbName = MINUTE_DB_NAME
+    barDbName  = MINUTE_DB_NAME
     
     # 策略的基本参数
     name = EMPTY_UNICODE           # 策略实例名称
@@ -110,7 +110,7 @@ class CtaTemplate(object):
         return self.sendOrder(vtSymbol,CTAORDER_COVER, price, volume, stop)
         
     #----------------------------------------------------------------------
-    def sendOrder(self,vtSymbol, orderType, price, volume, stop=False):
+    def sendOrder(self, vtSymbol, orderType, price, volume, stop=False):
         """发送委托"""
         if self.trading:
             # 如果stop为True，则意味着发本地停止单
@@ -151,9 +151,9 @@ class CtaTemplate(object):
         return self.ctaEngine.loadTick(self.tickDbName, self.vtSymbol, days)
     
     #----------------------------------------------------------------------
-    def loadBar(self, days):
+    def loadBar(self, vtSymbol,period, counts):
         """读取bar数据"""
-        return self.ctaEngine.loadBar(self.barDbName, self.vtSymbol, days)
+        return self.ctaEngine.loadBar(vtSymbol,period,counts)
     
     #----------------------------------------------------------------------
     def writeCtaLog(self, content):
@@ -197,7 +197,7 @@ class TargetPosTemplate(CtaTemplate):
     author = u'量衍投资'
     
     # 目标持仓模板的基本变量
-    tickAdd = 1             # 委托时相对基准价格的超价
+    tickAdd = 10            # 委托时相对基准价格的超价
     lastTick = None         # 最新tick数据
     lastBar = None          # 最新bar数据
     targetPos = EMPTY_INT   # 目标持仓
@@ -213,6 +213,11 @@ class TargetPosTemplate(CtaTemplate):
     def __init__(self, ctaEngine, setting):
         """Constructor"""
         super(TargetPosTemplate, self).__init__(ctaEngine, setting)
+
+    #----------------------------------------------------------------------
+    def loadBar(self, vtSymbol,period, counts):
+        """读取bar数据"""
+        return self.ctaEngine.loadBar(vtSymbol,period,counts)
         
     #----------------------------------------------------------------------
     def onTick(self, tick):
@@ -227,6 +232,10 @@ class TargetPosTemplate(CtaTemplate):
     def onBar(self, bar):
         """收到K线推送"""
         self.lastBar = bar
+
+        # 实盘模式下，启动交易后，需要根据bar的实时推送执行自动开平仓操作
+        if self.trading:
+            self.trade()
     
     #----------------------------------------------------------------------
     def onOrder(self, order):

@@ -85,6 +85,8 @@ class CtaEngine(object):
         
         # 注册事件监听
         self.registerEvent()
+        
+        print '------- ctaEngine.init',STRATEGY_CLASS
  
     #----------------------------------------------------------------------
     def sendOrder(self, vtSymbol, orderType, price, volume, strategy):
@@ -346,23 +348,21 @@ class CtaEngine(object):
     #----------------------------------------------------------------------
     def insertData(self, dbName, collectionName, data):
         """插入数据到数据库（这里的data可以是VtTickData或者VtBarData）"""
-        self.mainEngine.dbInsert(dbName, collectionName, data.__dict__)
+        # self.mainEngine.dbInsert(dbName, collectionName, data.__dict__)
+        print '----- CtaEngine.insertData '  
     
     #----------------------------------------------------------------------
-    def loadBar(self, dbName, collectionName, days):
-        """从数据库中读取Bar数据，startDate是datetime对象"""
-        startDate = self.today - timedelta(days)
-        
-        d = {'datetime':{'$gte':startDate}}
-        barData = self.mainEngine.dbQuery(dbName, collectionName, d)
-        
-        l = []
-        for d in barData:
-            bar = VtBarData()
-            bar.__dict__ = d
-            l.append(bar)
-        return l
-    
+    def loadBar(self,vtSymbol, period, counts):
+        print '-----CtaEngine.loadBar', vtSymbol,period,counts
+        if period== 'day': 
+            barData = self.mainEngine.getDayBars(vtSymbol,counts)
+            return barData  
+        elif period== 'min': 
+            barData = self.mainEngine.getMinuteBars(vtSymbol,counts)
+            return barData  
+        else:
+            return None 
+
     #----------------------------------------------------------------------
     def loadTick(self, dbName, collectionName, days):
         """从数据库中读取Tick数据，startDate是datetime对象"""

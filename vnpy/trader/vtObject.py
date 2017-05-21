@@ -87,10 +87,11 @@ class VtBarData(VtBaseData):
         self.symbol = EMPTY_STRING          # 代码
         self.exchange = EMPTY_STRING        # 交易所
     
-        self.open = EMPTY_FLOAT             # OHLC
-        self.high = EMPTY_FLOAT
-        self.low = EMPTY_FLOAT
+        self.open  = EMPTY_FLOAT             # OHLC
+        self.high  = EMPTY_FLOAT
+        self.low   = EMPTY_FLOAT
         self.close = EMPTY_FLOAT
+        self.tick  = EMPTY_FLOAT 
         
         self.date = EMPTY_STRING            # bar开始的时间，日期
         self.time = EMPTY_STRING            # 时间
