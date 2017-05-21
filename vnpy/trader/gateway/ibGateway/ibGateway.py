@@ -356,31 +356,24 @@ class IbWrapper(EWrapper):
             dt = datetime.now()
             tick.time = dt.strftime('%H:%M:%S.%f')[0:10]
             tick.date = dt.strftime('%Y%m%d')
-            
-            # 行情数据更新
+
+            # 行情数据更新, max 10 ticks per seconds  
             # print "ibGateway.tickPrice :", tick.symbol, tick.lastPrice, tick.date, tick.time  
-            newtick = copy(tick)
-            self.gateway.onTick(newtick)
+            if tick.rawData != tick.time: 
+                tick.rawData = tick.time 
+                newtick = copy(tick)
+                self.gateway.onTick(newtick)
         else:
             print field
 
     #----------------------------------------------------------------------
     def tickSize(self, tickerId, field, size):
         """行情推送（量相关）"""
+        # Only update the tick, don't putEvent 
         if field in tickFieldMap:
             tick = self.tickDict[tickerId]
             key = tickFieldMap[field]
             tick.__setattr__(key, size)
-            
-            dt = datetime.now()
-            tick.time = dt.strftime('%H:%M:%S.%f')
-            tick.date = dt.strftime('%Y%m%d')
-                
-            # 行情数据更新
-            newtick = copy(tick)
-            # print "ibGateway.tickSize:", tick.symbol, tick.lastPrice, tick.date, tick.time  
-            # don't puts the tick events on size changes, only upate the tick object, and wait the price change to put event 
-            # self.gateway.onTick(newtick)      
         else:
             print field
 
@@ -518,13 +511,13 @@ class IbWrapper(EWrapper):
         symbol = contractDetails.m_summary.m_symbol
         exchange = contractDetails.m_summary.m_exchange
         expiry   = str(contractDetails.m_summary.m_expiry)
-        print type(expiry), expiry,expiry[0:6] 
+        # print type(expiry), expiry,expiry[0:6] 
         symstr = '-'.join([symbol, expiry[0:6]])
         vtSymbol = '.'.join([symstr, exchange])
         ct = self.contractDict.get(vtSymbol, None)
         
         if not ct:
-            print 'AAAA' , vtSymbol,expiry, self.contractDict
+            # print 'AAAA' , vtSymbol,expiry, self.contractDict
             return
         
         ct.name = contractDetails.m_longName.decode('UTF-8')

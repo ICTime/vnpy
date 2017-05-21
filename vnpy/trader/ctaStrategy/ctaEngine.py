@@ -250,7 +250,7 @@ class CtaEngine(object):
         tick = event.dict_['data']
         # 收到tick行情后，先处理本地停止单（检查是否要立即发出）
         self.processStopOrder(tick)
-        print "---------- ctaStrategy.ctaEngine.procecssTickEvent",tick.__dict__
+        # print "---------- ctaStrategy.ctaEngine.procecssTickEvent",tick.__dict__
         
         # 推送tick到对应的策略实例进行处理
         if tick.vtSymbol in self.tickStrategyDict:
@@ -262,7 +262,7 @@ class CtaEngine(object):
             l = self.tickStrategyDict[tick.vtSymbol]
             for strategy in l:
                 self.callStrategyFunc(strategy, strategy.onTick, tick)
-                print "---------- ctaStrategy.ctaEngine.procecssTickEvent",tick.vtSymbol,strategy
+                # print "---------- ctaStrategy.ctaEngine.procecssTickEvent",tick.vtSymbol,strategy
     
     #----------------------------------------------------------------------
     def processBarEvent(self, event):
@@ -276,17 +276,11 @@ class CtaEngine(object):
 
         # 推送bar到对应的策略实例进行处理
         if bar.vtSymbol in self.tickStrategyDict:
-            # 将vtTickData数据转化为ctaTickData
-            ctaBar = CtaBarData()
-            d = ctaBar.__dict__
-            for key in d.keys():
-                d[key] = bar.__getattribute__(key)
-
             # 逐个推送到真实策略实例中, DataRecorder 只产生KBar
             # print self.tickStrategyDict[bar.vtSymbol]
             for strategy in self.tickStrategyDict[bar.vtSymbol]:
-                print "---------- ctaAlgo.ctaEngine.proecssBarEvent",bar.vtSymbol,strategy.className, strategy.name
-                strategy.onBar(ctaBar)
+                # print "---------- ctaAlgo.ctaEngine.proecssBarEvent",bar.vtSymbol,strategy.className, strategy.name
+                strategy.onBar(bar)
 
 
     #----------------------------------------------------------------------
@@ -347,7 +341,7 @@ class CtaEngine(object):
     def registerEvent(self):
         """注册事件监听"""
         self.eventEngine.register(EVENT_TICK, self.processTickEvent)
-        # self.eventEngine.register(EVENT_BAR, self.processBarEvent)
+        self.eventEngine.register(EVENT_BAR, self.processBarEvent)
         self.eventEngine.register(EVENT_ORDER, self.processOrderEvent)
         self.eventEngine.register(EVENT_TRADE, self.processTradeEvent)
         self.eventEngine.register(EVENT_POSITION, self.processPositionEvent)
@@ -432,7 +426,7 @@ class CtaEngine(object):
             
             # 订阅合约
             contract = self.mainEngine.getContract(strategy.vtSymbol)
-            print '------- ctaEngine.loadStrategy:', contract.__dict__ 
+            # print '------- ctaEngine.loadStrategy:', contract.__dict__ 
 
             # Subscribe is done in dataRecoder, skip here 
             # if contract:

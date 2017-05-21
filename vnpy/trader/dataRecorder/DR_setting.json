@@ -3,15 +3,17 @@
 
     "tick":
     [
-        ["ru1701", "CTP"]
+        ["rb1710",          "CTP",  "SHFE"  ]
     ],
 
     "bar":
     [
-        ["rb1710", "CTP"],
-        ["jm1709", "CTP"],
-        ["m1709-P-2800", "CTP"],
-        ["MHI-201705", "IB", "HKFE", "HKD", "FUT"],
-        ["N225M-201706", "IB", "OSE.JPN", "JPY", "FUT"]
+        ["rb1710",          "CTP",  "SHFE"  ],
+        ["jm1709",          "CTP",  "DCE"   ],
+        ["SR1709",          "CTP",  "CZCE"  ],
+        ["IF1709",          "CTP",  "CFFEX" ],
+        ["m1709-P-2800",    "CTP",  "DCE"   ],
+        ["MHI-201705",      "IB",   "HKFE",     "HKD", "FUT"],
+        ["N225M-201706",    "IB",   "OSE.JPN",  "JPY", "FUT"]
     ]
 }

@@ -95,7 +95,8 @@ class DemoStrategy(CtaTemplate):
         
     #----------------------------------------------------------------------
     def onTick(self, tick):
-        print "---------- ctaStrategy.strategy.strategyDemo.onTick:", tick.symbol, tick.time, tick.lastPrice
+        # print "---------- ctaStrategy.strategy.strategyDemo.onTick:", tick.symbol, tick.time, tick.lastPrice
+        pass 
 
     #----------------------------------------------------------------------
     def onBar(self, bar):
@@ -103,7 +104,7 @@ class DemoStrategy(CtaTemplate):
         # 判断买卖
         crossOver  = bar.close > bar.open  
         crossBelow = bar.close < bar.open 
-        print "---------- ctaStrategy.strategy.strategyDemo.onBar:", tick.symbol, tick.time, tick.lastPrice
+        print "---------- ctaStrategy.strategy.strategyDemo.onBar:", bar.__dict__
         
         # 金叉和死叉的条件是互斥
         # 所有的委托均以K线收盘价委托（这里有一个实盘中无法成交的风险，考虑添加对模拟市价单类型的支持）

@@ -78,19 +78,8 @@ class DrEngine(object):
                     vtSymbol = symbol
 
                     req = VtSubscribeReq()
-                    req.symbol = setting[0]
-                    
-                    # 针对LTS和IB接口，订阅行情需要交易所代码
-                    # 针对IB接口，订阅行情需要货币和产品类型
-                    if len(setting)==5:
-                        symbollist= symbol.split('-')
-                        req.symbol = symbollist[0] 
-                        req.expiry = symbollist[1] 
-                        req.exchange     = setting[2]
-                        req.currency     = setting[3]
-                        req.productClass = setting[4]                    
-                        vtSymbol = '.'.join([symbol, req.exchange])
-                    
+                    req.symbol   = setting[0]
+                    req.exchange = setting[2]
                     self.mainEngine.subscribe(req, setting[1])
                     
                     tick = VtTickData()           # 该tick实例可以用于缓存部分数据（目前未使用）
@@ -100,26 +89,37 @@ class DrEngine(object):
                 l = drSetting['bar']
                 
                 for setting in l:
-                    symbol = setting[0]
-                    vtSymbol = symbol
-                    
-                    req = VtSubscribeReq()
-                    req.symbol = symbol                    
+                    bar = VtBarData() 
 
+                    # FOR CTP:  vtSymbol is symbol
+                    if len(setting)==3:
+                        vtSymbol = setting[0]
+                        req = VtSubscribeReq()
+                        req.symbol   = setting[0]
+                        req.exchange = setting[2]
+                        bar.symbol = req.symbol 
+                        bar.vtSymbol = vtSymbol 
+                        bar.gatewayName = setting[1]
+                        bar.exchange    = setting[2]
+    
                     # FOR IB:  vtSymbol is symbol-expiry.exchange 
                     if len(setting)==5:
-                        symbollist= symbol.split('-')
+                        symbollist= setting[0].split('-')
                         req.symbol = symbollist[0] 
                         req.expiry = symbollist[1] 
                         req.exchange     = setting[2]
                         req.currency     = setting[3]
                         req.productClass = setting[4]                    
-                        vtSymbol = '.'.join([symbol, req.exchange])
-                    
-                    print '---------- DrEngine.loadSetting.bar ', vtSymbol, req.__dict__
+                        
+                        bar.symbol   = req.symbol 
+                        bar.exchange = req.exchange 
+                        bar.gatewayName = setting[1]
+                        vtSymbol = '.'.join([setting[0], req.exchange])
+                        bar.vtSymbol = vtSymbol 
+                        
+                    print '---------- DrEngine.loadSetting req', vtSymbol, req.__dict__
+                    print '---------- DrEngine.loadSetting bar', vtSymbol, bar.__dict__
                     self.mainEngine.subscribe(req, setting[1])  
-                    
-                    bar = VtBarData() 
                     self.barDict[vtSymbol] = bar
 
             # 启动数据插入线程
@@ -128,7 +128,7 @@ class DrEngine(object):
             # 注册事件监听
             self.registerEvent()    
 
-            print '---------- DrEngine.loadSetting', self.barDict
+            print '---------- DrEngine.loadSetting end', self.barDict
     #----------------------------------------------------------------------
     def procecssTickEvent(self, event):
         """处理行情推送"""
@@ -139,13 +139,15 @@ class DrEngine(object):
         # 转化Tick格式
         if not tick.datetime:
             tick.datetime = datetime.strptime(' '.join([tick.date, tick.time]), '%Y%m%d %H:%M:%S.%f')            
+
         # 更新分钟线数据
         if vtSymbol in self.barDict:
             bar = self.barDict[vtSymbol]
             # 如果第一个TICK或者新的一分钟
             # if not bar.datetime or bar.datetime.minute != tick.datetime.minute:
             # using 5 seconds bars as min bars  
-            if not bar.datetime or bar.datetime.minute != tick.datetime.minute or (tick.datetime.second % 5 ==0 and str(tick.time).endswith('.0')):    
+            # if not bar.datetime or bar.datetime.minute != tick.datetime.minute or (tick.datetime.second % 5 ==0 and str(tick.time).endswith('.0')):    
+            if not bar.datetime or bar.datetime.minute != tick.datetime.minute or (tick.datetime.second % 5 ==0 and tick.datetime.microsecond <= 100000):  
                 if bar.vtSymbol:
                     newBar = copy.copy(bar)
                     self.putBarEvent(newBar)
@@ -157,8 +159,8 @@ class DrEngine(object):
                                                                     low=bar.low, 
                                                                     close=bar.close))
                          
-                bar.vtSymbol = tick.vtSymbol
-                bar.symbol = tick.symbol
+                # bar.vtSymbol = tick.vtSymbol
+                # bar.symbol = tick.symbol
                 bar.exchange = tick.exchange
                 
                 bar.open = tick.lastPrice

@@ -152,10 +152,10 @@ def testCTA_CTP():
 
     sleep(5)
     mainEngine.ctaEngine.loadSetting()
-    # mainEngine.ctaEngine.initStrategy('SMA1')
-    # mainEngine.ctaEngine.startStrategy('SMA1')
+    mainEngine.ctaEngine.initStrategy('SMA1')
+    mainEngine.ctaEngine.startStrategy('SMA1')
 
-    sleep(100)
+    sleep(10000)
     mainEngine.gatewayDict['CTP'].close()
     mainEngine.eventEngine.stop()
     mainEngine.dataEngine.saveContracts()
@@ -173,8 +173,8 @@ def testCTA_IB():
 
     sleep(2)
     mainEngine.ctaEngine.loadSetting()
-    # mainEngine.ctaEngine.initStrategy('SMA1')
-    # mainEngine.ctaEngine.startStrategy('SMA1')
+    mainEngine.ctaEngine.initStrategy('SMA1')
+    mainEngine.ctaEngine.startStrategy('SMA1')
 
     sleep(100000)
     mainEngine.gatewayDict['IB'].close()
@@ -183,7 +183,7 @@ def testCTA_IB():
 
 
 if __name__ == '__main__':
-    # testCTA_CTP()
-    testCTA_IB()
+    testCTA_CTP()
+    # testCTA_IB()
     # testCTP()
     # testIB()

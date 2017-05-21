@@ -240,7 +240,11 @@ class CtpMdApi(MdApi):
         self.password = EMPTY_STRING        # 密码
         self.brokerID = EMPTY_STRING        # 经纪商代码
         self.address = EMPTY_STRING         # 服务器地址
-        
+
+
+        # 缓存代码和交易所的印射关系
+        self.symbolExchangeDict = {}
+
     #----------------------------------------------------------------------
     def onFrontConnected(self):
         """服务器连接"""
@@ -338,8 +342,9 @@ class CtpMdApi(MdApi):
         tick.gatewayName = self.gatewayName
         
         tick.symbol = data['InstrumentID']
-        tick.exchange = exchangeMapReverse.get(data['ExchangeID'], u'未知')
-        tick.vtSymbol = tick.symbol #'.'.join([tick.symbol, EXCHANGE_UNKNOWN])
+        # tick.exchange = exchangeMapReverse.get(data['ExchangeID'], u'未知')
+        tick.exchange = self.symbolExchangeDict[tick.symbol]
+        tick.vtSymbol = tick.symbol # 
         
         tick.lastPrice = data['LastPrice']
         tick.volume = data['Volume']
@@ -347,7 +352,7 @@ class CtpMdApi(MdApi):
         tick.time = '.'.join([data['UpdateTime'], str(data['UpdateMillisec']/100)])
         
         # 这里由于交易所夜盘时段的交易日数据有误，所以选择本地获取
-        #tick.date = data['TradingDay']
+        # tick.date = data['TradingDay']
         tick.date = datetime.now().strftime('%Y%m%d')   
         
         tick.openPrice = data['OpenPrice']
@@ -415,6 +420,8 @@ class CtpMdApi(MdApi):
         # 则先保存订阅请求，登录完成后会自动订阅
         if self.loginStatus:
             self.subscribeMarketData(str(subscribeReq.symbol))
+            
+        self.symbolExchangeDict[subscribeReq.symbol] = subscribeReq.exchange 
         self.subscribedSymbols.add(subscribeReq)   
         
     #----------------------------------------------------------------------
