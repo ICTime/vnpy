@@ -1,0 +1,17 @@
+[
+    {
+        "className": "DemoStrategy", 
+        "name": "SMA1", 
+        "vtSymbol": [
+            "rb1710", 
+            "ru1709"
+        ]
+    }, 
+    {
+        "className": "AtrRsiStrategy", 
+        "name": "ARS", 
+        "vtSymbol": [
+            "rb1710"
+        ]
+    }
+]

@@ -1,0 +1,42 @@
+{
+    "rb1710": {
+        "LADD1": [
+            "date3", 
+            2030, 
+            1
+        ], 
+        "LONG": [
+            "date1", 
+            2008, 
+            1
+        ], 
+        "atr": 20, 
+        "multiple": 10, 
+        "orders": [
+            "LONG", 
+            "LADD1"
+        ], 
+        "state": "FLAT", 
+        "stoploss": 2009
+    }, 
+    "ru1709": {
+        "LADD1": [
+            "date3", 
+            2030, 
+            1
+        ], 
+        "LONG": [
+            "date1", 
+            2008, 
+            1
+        ], 
+        "atr": 20, 
+        "multiple": 10, 
+        "orders": [
+            "LONG", 
+            "LADD1"
+        ], 
+        "state": "FLAT", 
+        "stoploss": 2009
+    }
+}
