@@ -90,34 +90,34 @@ class CtaTemplate(object):
         raise NotImplementedError
     
     #----------------------------------------------------------------------
-    def buy(self, price, volume, stop=False):
+    def buy(self, vtSymbol,price, volume, stop=False):
         """买开"""
-        return self.sendOrder(CTAORDER_BUY, price, volume, stop)
+        return self.sendOrder(vtSymbol,CTAORDER_BUY, price, volume, stop)
     
     #----------------------------------------------------------------------
-    def sell(self, price, volume, stop=False):
+    def sell(self, vtSymbol,price, volume, stop=False):
         """卖平"""
-        return self.sendOrder(CTAORDER_SELL, price, volume, stop)       
+        return self.sendOrder(vtSymbol,CTAORDER_SELL,price, volume, stop)       
 
     #----------------------------------------------------------------------
-    def short(self, price, volume, stop=False):
+    def short(self, vtSymbol,price, volume, stop=False):
         """卖开"""
-        return self.sendOrder(CTAORDER_SHORT, price, volume, stop)          
+        return self.sendOrder(vtSymbol,CTAORDER_SHORT,price, volume, stop)          
  
     #----------------------------------------------------------------------
-    def cover(self, price, volume, stop=False):
+    def cover(self, vtSymbol,price, volume, stop=False):
         """买平"""
-        return self.sendOrder(CTAORDER_COVER, price, volume, stop)
+        return self.sendOrder(vtSymbol,CTAORDER_COVER, price, volume, stop)
         
     #----------------------------------------------------------------------
-    def sendOrder(self, orderType, price, volume, stop=False):
+    def sendOrder(self,vtSymbol, orderType, price, volume, stop=False):
         """发送委托"""
         if self.trading:
             # 如果stop为True，则意味着发本地停止单
             if stop:
-                vtOrderID = self.ctaEngine.sendStopOrder(self.vtSymbol, orderType, price, volume, self)
+                vtOrderID = self.ctaEngine.sendStopOrder(vtSymbol, orderType, price, volume, self)
             else:
-                vtOrderID = self.ctaEngine.sendOrder(self.vtSymbol, orderType, price, volume, self) 
+                vtOrderID = self.ctaEngine.sendOrder(vtSymbol, orderType, price, volume, self) 
             return vtOrderID
         else:
             # 交易停止时发单返回空字符串

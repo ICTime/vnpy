@@ -89,8 +89,10 @@ class CtaEngine(object):
     #----------------------------------------------------------------------
     def sendOrder(self, vtSymbol, orderType, price, volume, strategy):
         """发单"""
+        print vtSymbol, orderType, price, volume, strategy
         contract = self.mainEngine.getContract(vtSymbol)
         
+        print '------ sendOrder',contract
         req = VtOrderReq()
         req.symbol = contract.symbol
         req.exchange = contract.exchange
@@ -268,15 +270,10 @@ class CtaEngine(object):
     def processBarEvent(self, event):
         """处理行情推送"""
         bar= event.dict_['data']
-        # 修正BAR中的exchange字段，原因是CTP onRtnDepthMarketData返回值为空
-        # onRspQryInstrument return the correct contract info after login
-        # contract = self.mainEngine.getContract(bar.vtSymbol)
-        # print contract.__dict__
-        # bar.exchange = contract.exchange
-
+    
         # 推送bar到对应的策略实例进行处理
         if bar.vtSymbol in self.tickStrategyDict:
-            # 逐个推送到真实策略实例中, DataRecorder 只产生KBar
+            # 逐个推送到真实策略实例中, 
             # print self.tickStrategyDict[bar.vtSymbol]
             for strategy in self.tickStrategyDict[bar.vtSymbol]:
                 # print "---------- ctaAlgo.ctaEngine.proecssBarEvent",bar.vtSymbol,strategy.className, strategy.name
@@ -417,17 +414,20 @@ class CtaEngine(object):
             self.writeCtaLog(u'策略实例：%s' %name)
             
             # 保存Tick映射关系
-            if strategy.vtSymbol in self.tickStrategyDict:
-                l = self.tickStrategyDict[strategy.vtSymbol]
-            else:
-                l = []
-                self.tickStrategyDict[strategy.vtSymbol] = l
-            l.append(strategy)
+            for vtSymbol in strategy.vtSymbol:
+                print '-----', vtSymbol 
+                if vtSymbol in self.tickStrategyDict:
+                    l = self.tickStrategyDict[vtSymbol]
+                else:
+                    l = []
+                    self.tickStrategyDict[vtSymbol] = l
+                l.append(strategy)
+                print l 
             
+        
             # 订阅合约
-            contract = self.mainEngine.getContract(strategy.vtSymbol)
+            # contract = self.mainEngine.getContract(strategy.vtSymbol)
             # print '------- ctaEngine.loadStrategy:', contract.__dict__ 
-
             # Subscribe is done in dataRecoder, skip here 
             # if contract:
             #     req = VtSubscribeReq()
@@ -594,10 +594,11 @@ class CtaEngine(object):
         for strategy in self.strategyDict.values():
             flt = {'name': strategy.name,
                    'vtSymbol': strategy.vtSymbol}
-            posData = self.mainEngine.dbQuery(POSITION_DB_NAME, strategy.className, flt)
-            
-            for d in posData:
-                strategy.pos = d['pos']
+
+            # posData = self.mainEngine.dbQuery(POSITION_DB_NAME, strategy.className, flt)
+            # 
+            # for d in posData:
+            #     strategy.pos = d['pos']
                 
     #----------------------------------------------------------------------
     def roundToPriceTick(self, priceTick, price):

@@ -145,8 +145,7 @@ class DrEngine(object):
             bar = self.barDict[vtSymbol]
             # 如果第一个TICK或者新的一分钟
             # if not bar.datetime or bar.datetime.minute != tick.datetime.minute:
-            # using 5 seconds bars as min bars  
-            # if not bar.datetime or bar.datetime.minute != tick.datetime.minute or (tick.datetime.second % 5 ==0 and str(tick.time).endswith('.0')):    
+
             if not bar.datetime or bar.datetime.minute != tick.datetime.minute or (tick.datetime.second % 5 ==0 and tick.datetime.microsecond <= 100000):  
                 if bar.vtSymbol:
                     newBar = copy.copy(bar)
@@ -158,7 +157,6 @@ class DrEngine(object):
                                                                     high=bar.high, 
                                                                     low=bar.low, 
                                                                     close=bar.close))
-                         
                 # bar.vtSymbol = tick.vtSymbol
                 # bar.symbol = tick.symbol
                 bar.exchange = tick.exchange

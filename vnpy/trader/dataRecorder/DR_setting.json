@@ -9,6 +9,7 @@
     "bar":
     [
         ["rb1710",          "CTP",  "SHFE"  ],
+        ["ru1709",          "CTP",  "SHFE"  ],
         ["jm1709",          "CTP",  "DCE"   ],
         ["SR1709",          "CTP",  "CZCE"  ],
         ["IF1709",          "CTP",  "CFFEX" ],

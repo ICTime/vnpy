@@ -119,10 +119,11 @@ class AtrRsiStrategy(CtaTemplate):
     def onTick(self, tick):
         """收到行情TICK推送（必须由用户继承实现）"""
         # 计算K线
+        pass 
+        '''
         print "---------- ctaStrategy.strategy.strategyAtrRsi.onTick:", tick.symbol, tick.time, tick.lastPrice
 
         tickMinute = tick.datetime.minute
-
         if tickMinute != self.barMinute:    
             if self.bar:
                 self.onBar(self.bar)
@@ -149,11 +150,14 @@ class AtrRsiStrategy(CtaTemplate):
             bar.high = max(bar.high, tick.lastPrice)
             bar.low = min(bar.low, tick.lastPrice)
             bar.close = tick.lastPrice
-
+        '''
     #----------------------------------------------------------------------
     def onBar(self, bar):
         """收到Bar推送（必须由用户继承实现）"""
         # 撤销之前发出的尚未成交的委托（包括限价单和停止单）
+        print "---------- ctaStrategy.strategy.strategyAtrRsi.onBar:", bar.symbol
+
+        '''
         for orderID in self.orderList:
             self.cancelOrder(orderID)
         self.orderList = []
@@ -229,6 +233,7 @@ class AtrRsiStrategy(CtaTemplate):
         # 发出状态更新事件
         self.putEvent()
 
+        '''
     #----------------------------------------------------------------------
     def onOrder(self, order):
         """收到委托变化推送（必须由用户继承实现）"""

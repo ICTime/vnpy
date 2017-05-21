@@ -1,14 +1,17 @@
 [
     {
-        "name": "SMA1",
-        "className": "DemoStrategy",
-        "vtSymbol": "rb1710"
-    },
-
+        "className": "DemoStrategy", 
+        "name": "SMA1", 
+        "vtSymbol": [
+            "rb1710", 
+            "ru1709"
+        ]
+    }, 
     {
-        "name": "ARS",
-        "className": "AtrRsiStrategy",
-        "vtSymbol": "MHI-201705.HKFE"
+        "className": "AtrRsiStrategy", 
+        "name": "ARS", 
+        "vtSymbol": [
+            "rb1710"
+        ]
     }
-
 ]

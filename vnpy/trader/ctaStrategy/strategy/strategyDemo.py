@@ -105,28 +105,29 @@ class DemoStrategy(CtaTemplate):
         crossOver  = bar.close > bar.open  
         crossBelow = bar.close < bar.open 
         print "---------- ctaStrategy.strategy.strategyDemo.onBar:", bar.__dict__
+
         
         # 金叉和死叉的条件是互斥
         # 所有的委托均以K线收盘价委托（这里有一个实盘中无法成交的风险，考虑添加对模拟市价单类型的支持）
         if crossOver:
             # 如果金叉时手头没有持仓，则直接做多
             if self.pos == 0:
-                self.buy(bar.high, 1)
+                self.buy(bar.vtSymbol,bar.high, 1)
             # 如果有空头持仓，则先平空，再做多
             elif self.pos < 0:
-                self.cover(bar.high, 1)
-                self.buy(bar.high, 1)
+                self.cover(bar.vtSymbol,bar.high, 1)
+                self.buy(bar.vtSymbol,bar.high, 1)
         # 死叉和金叉相反
         elif crossBelow:
             if self.pos == 0:
-                self.short(bar.low, 1)
+                self.short(bar.vtSymbol,bar.low, 1)
             elif self.pos > 0:
-                self.sell(bar.low, 1)
-                self.short(bar.low, 1)
+                self.sell(bar.vtSymbol,bar.low, 1)
+                self.short(bar.vtSymbol,bar.low, 1)
                 
         # 发出状态更新事件
         self.putEvent()
-        
+
     #----------------------------------------------------------------------
     def onOrder(self, order):
         """收到委托变化推送（必须由用户继承实现）"""
