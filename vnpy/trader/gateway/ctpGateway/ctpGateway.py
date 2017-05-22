@@ -191,7 +191,7 @@ class CtpGateway(VtGateway):
             self.qryFunctionList = [self.qryAccount, self.qryPosition]
             
             self.qryCount = 0           # 查询触发倒计时
-            self.qryTrigger = 2         # 查询触发点
+            self.qryTrigger = 15        # 查询触发点
             self.qryNextFunction = 0    # 上次运行的查询函数索引
             
             self.startQuery()

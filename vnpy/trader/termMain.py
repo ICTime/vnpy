@@ -1,6 +1,5 @@
 # encoding: UTF-8
 
-
 import os
 import sys
 import ctypes
@@ -13,20 +12,17 @@ from ctaStrategy.strategy import STRATEGY_CLASS
 from threading import Thread
 
 from noUiBasicWidget import *
-from setup_logger import *
 
-# ----------------------------------------------------------------------
 """
-Linux 下：
 启动：python noUiMain.py >>logs/mylog.log &
-停止：ps -ef | grep python ，找到对应的进程PID， kill -9 PID
-查看：tail -f logs/noUiMain_月日_小时分钟.log -f
-Windows下：
-启动：命令行窗口 python noUiMain.py
-停止：关闭窗口
+停止：ps -ef | grep python ; kill -9 PID
+查看：tail -f logs/filename 
 """
+
+##############################################################
 class NoUiMain(object):
 
+    #----------------------------------------------------------------------
     def __init__(self):
         # gateway 是否连接
         self.connected = False
@@ -44,6 +40,7 @@ class NoUiMain(object):
         print u'instance mainengine'
         self.mainEngine = MainEngine()
 
+    #----------------------------------------------------------------------
     def trade_off(self):
         """检查现在是否为非交易时间"""
         now = datetime.now()
@@ -55,12 +52,14 @@ class NoUiMain(object):
         off = (a <= now <= b) or (c <= now <= d) or weekend
         return off
 
+    #----------------------------------------------------------------------
     def disconnect(self):
         """"断开底层gateway的连接"""
         if self.mainEngine:
             self.mainEngine.disconnect(self.gateway_name)
             self.connected = False
 
+    #----------------------------------------------------------------------
     def onTimer(self, event):
         """定时器执行逻辑，每十秒执行一次"""
 
@@ -68,6 +67,7 @@ class NoUiMain(object):
         self.g_count += 1
         if self.g_count <= 20:
             return
+
         self.g_count = 0
         dt = datetime.now()
         if dt.hour != self.last_dt.hour:
@@ -105,6 +105,7 @@ class NoUiMain(object):
                 self.mainEngine.connect(self.gateway_name)
                 self.connected = True
 
+    #----------------------------------------------------------------------
     def Start(self):
         """启动"""
 
@@ -140,13 +141,14 @@ class NoUiMain(object):
         self.positionM = PositionMonitor(self.mainEngine.eventEngine)
         self.accountM = AccountMonitor(self.mainEngine.eventEngine)
 
+    #----------------------------------------------------------------------
+
 def run_noui():
-    # log_file_name = './logs/' + u'noUiMain_{0}.log'.format(datetime.now().strftime('%m%d_%H%M'))
-    log_file_name = './logs/' + u'noUiMain_{0}.log'.format(datetime.now().strftime('%m%d'))
+    # logFileName = './logs/' + u'noUiMain_{0}.log'.format(datetime.now().strftime('%m%d_%H%M'))
+    logFileName   = './logs/' + u'noUiMain_{0}.log'.format(datetime.now().strftime('%m%d'))
 
     vtLogger= VtLogger() 
-    vtLogger.setup_logger(filename=log_file_name)
-    # setup_logger(filename=log_file_name)
+    vtLogger.run(filename=logFileName)
     noUi = NoUiMain()
     noUi.Start()
 
