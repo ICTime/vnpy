@@ -144,9 +144,8 @@ class DrEngine(object):
         if vtSymbol in self.barDict:
             bar = self.barDict[vtSymbol]
             # 如果第一个TICK或者新的一分钟
-            # if not bar.datetime or bar.datetime.minute != tick.datetime.minute:
-
-            if not bar.datetime or bar.datetime.minute != tick.datetime.minute or (tick.datetime.second % 5 ==0 and tick.datetime.microsecond <= 100000):  
+            if not bar.datetime or bar.datetime.minute != tick.datetime.minute:
+            # if not bar.datetime or bar.datetime.minute != tick.datetime.minute or (tick.datetime.second % 5 ==0 and tick.datetime.microsecond <= 100000):  
                 if bar.vtSymbol:
                     newBar = copy.copy(bar)
                     self.putBarEvent(newBar)

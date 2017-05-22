@@ -383,8 +383,8 @@ class CtaEngine(object):
         """快速发出CTA模块日志事件"""
         log = VtLogData()
         log.logContent = content
-        # event = Event(type_=EVENT_CTA_LOG)
-        event = Event(type_=EVENT_LOG)
+        event = Event(type_=EVENT_CTA_LOG)
+        # event = Event(type_=EVENT_LOG)
         event.dict_['data'] = log
         self.eventEngine.put(event)   
     
@@ -669,8 +669,3 @@ class PositionBuffer(object):
                 self.longPosition -= trade.volume
                 self.longYd -= trade.volume
         
-        
-    
-    
-
-

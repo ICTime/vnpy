@@ -167,6 +167,15 @@ class CtpGateway(VtGateway):
         self.tdApi.qryPosition()
         
     #----------------------------------------------------------------------
+    def checkStatus(self):
+        """查询md/td的状态"""
+        if self.tdApi is None or self.mdApi is None:
+            return False
+
+        if not self.tdConnected or not self.mdConnected:
+            return False
+        return True
+    #----------------------------------------------------------------------
     def close(self):
         """关闭"""
         if self.mdConnected:

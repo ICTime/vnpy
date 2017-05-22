@@ -88,7 +88,35 @@ class MainEngine(object):
             
             # 接口连接后自动执行数据库连接的任务
             # self.dbConnect()        
-   
+
+    #----------------------------------------------------------------------
+    def checkGatewayStatus(self,gatewayName):
+        """check gateway connect status"""
+        if gatewayName in self.gatewayDict:
+            gateway = self.gatewayDict[gatewayName]
+            return gateway.checkStatus()
+
+        else:
+            self.writeLog(text.GATEWAY_NOT_EXIST.format(gateway=gatewayName))
+            return False
+
+    #----------------------------------------------------------------------
+    def disconnect(self,gateway_name = EMPTY_STRING):
+        """断开底层gateway的连接"""
+
+        # 只断开指定的gateway
+        if gateway_name != EMPTY_STRING:
+            if gateway_name in self.gatewayDict:
+                gateway = self.gatewayDict[gateway_name]
+                gateway.close()
+                return
+            else:
+                self.writeLog(u'gateway接口不存在：%s' % gateway_name)
+
+        # 断开所有的gateway
+        for gateway in self.gatewayDict.values():
+            gateway.close()
+
     #----------------------------------------------------------------------
     def subscribe(self, subscribeReq, gatewayName):
         """订阅特定接口的行情"""
