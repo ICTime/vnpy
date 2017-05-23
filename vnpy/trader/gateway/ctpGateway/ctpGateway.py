@@ -699,9 +699,10 @@ class CtpTdApi(TdApi):
     #----------------------------------------------------------------------
     def onRspQryInvestorPosition(self, data, error, n, last):
         """持仓查询回报"""
+        print '------------Position',data
         if not data['InstrumentID']:
             return
-        
+
         # 获取持仓缓存对象
         posName = '.'.join([data['InstrumentID'], data['PosiDirection']])
         if posName in self.posDict:
